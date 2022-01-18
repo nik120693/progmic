@@ -12,6 +12,7 @@
       <itemPath>uart.h</itemPath>
       <itemPath>btn.h</itemPath>
       <itemPath>rgbled.h</itemPath>
+      <itemPath>Timer.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -28,6 +29,7 @@
       <itemPath>uart.c</itemPath>
       <itemPath>btn.c</itemPath>
       <itemPath>rgbled.c</itemPath>
+      <itemPath>Timer.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

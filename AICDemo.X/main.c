@@ -44,6 +44,7 @@ void Sensor();
 void Disattivato();
 void Attivato();
 void Menu();
+void ChangePassword();
 
 char pwd[5] = {"0000"};
 //int pwd = 0000;
@@ -56,6 +57,9 @@ volatile unsigned char fRxDone;
 
 int main(int argc, char** argv) 
 {
+TRISBbits.TRISB14 = 0; //buzzer configured as output
+ANSELBbits.ANSB14 = 0; //buzzer disabled analog
+PORTBbits.RB14 = 0;
     //AICDemo();      
     Disattivato();
     //Attivato();
@@ -84,20 +88,23 @@ Sensor(){
     char strMsg[80];    
     int valPot;
     
-    //LCD_Init(); 
+    //LCD_Init();
+    LCD_DisplayClear();
     AIC_Init();
-    RGBLED_SetValue(0,0,1); //led blue
+    RGBLED_Init();
+    
     
     while(1)
     {    
+        //RGBLED_SetValue(0,0,1); //led blue
         valPot = AIC_Val();
         sprintf(strMsg, "Pot:%04d", valPot);
         LCD_WriteStringAtPos(strMsg, 0, 0);
         LCD_WriteStringAtPos("AIC Demo", 1, 0);
-        /*if(AIC_Val() > 512) {
+        if(AIC_Val() > 512) {
             //suono
-            LATBbits.LATB14 ^= 1; // non funziona e non so perchè
-        }*/
+            LATBbits.LATB14 ^= 1; 
+        }
         
     }    
 }
@@ -112,6 +119,7 @@ Disattivato() {
     UART_ConfigureUart(baud);
     
     BTN_Init();
+    
     RGBLED_SetValue(1,0,0); 
     LCD_WriteStringAtPos("Disattivato", 0, 0);
     
@@ -155,11 +163,12 @@ Attivato() {
             flagRX = 0;
         }*/
     
-    putU4_string("Inserisci Password:");
+    putU4_string("Inserisci Password:"); //uart
     //getU4_string();
     //flagRX = 0;
-
-    while(1){
+    unsigned int finished = 1;
+    
+    while(finished){
         getU4_string();
         if(flagRX)
         {
@@ -173,7 +182,7 @@ Attivato() {
                 putU4_string("Password errata\n"); 
                 flagRX=0;
             }
-            break;
+            finished = 0;
         }
     }
     
@@ -189,48 +198,75 @@ void Audio(){
     LATBbits.LATB14 ^= 1;
 }
 
+ChangePassword(){
+  putU4_string("\n Insert new password: \n");
+  flagRX=0;
+  unsigned char a;
+  unsigned char b;
+  unsigned char c;
+  unsigned char d;
+        a = getU4();
+        b = getU4();
+        c = getU4();
+        d = getU4();
+  unsigned char res[5] = {a, b, c, d,'\0'};      
+
+    if(strcmp(pwd, res)==0){
+        putU4_string("\n New password should be different from old password \n");
+        flagRX=0;
+        Attivato();
+    }
+    else
+    {
+        for(int i=0;i<sizeof(res)/sizeof(res[0]);i++){
+            pwd[i]=res[i];
+    }
+        putU4_string("\n Password changed successfully\n");
+        flagRX=0;
+        Attivato();
+    }
+}
+
 Menu() {
     //da implementare
     putU4_string("1-Attiva\n");
     putU4_string("2-Cambia Password\n");
     putU4_string("3-Vedi Log\n");
     putU4_string("4-Cancella Log\n");
-    char scelta[80];
     
-    char uno[2] = "1";
-    char due[2] = "2";
-    char tre[2] = "3";
-    char quattro[2] = "4";
+    unsigned char uno = '1';
+    unsigned char due = '2';
+    unsigned char tre = '3';
+    unsigned char quattro = '4';
+    unsigned int finished = 1;
     
-    while(1){
-        getU4_string();
-        if(flagRX)
-        {
-            if(strcmp(scelta, uno)==0){
-                Sensor();
-                flagRX=0;
-            }
-            else if(strcmp(scelta, due)==0){
-                //cambia password
-                flagRX=0;
-            }
-            else if(strcmp(scelta, tre)==0) {
-                //vedi log
-                flagRX=0;
-            }
-            else if(strcmp(scelta, quattro)==0) {
-                //cancella log
-                flagRX=0;
-            }
-            else{
-                putU4_string("comando non riconosciuto, disattivo");
-                Disattivato(); //stampa comando non riconosciuto, torna a disattivato
-                flagRX=0;
-                
-            }
+    while(finished){
+        unsigned char c = getU4();
+        c = getU4();
+        
+        if(c == uno){
             flagRX=0;
-            break;
+            Sensor();
         }
+        else if(c == due){
+            flagRX=0;
+            ChangePassword();
+        }
+        else if(c == 3) {
+            //vedi log
+            flagRX=0;
+        }
+        else if(c == quattro) {
+            //cancella log
+            flagRX=0;
+        }
+        else{
+            putU4_string("comando non riconosciuto, disattivo");
+            Disattivato(); //stampa comando non riconosciuto, torna a disattivato
+            flagRX=0;
+
+        }
+        flagRX=0;
+        finished = 0;
     }
-    
 }
