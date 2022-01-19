@@ -12,7 +12,7 @@
 extern char flagRX; // global  - it has to be init in main.c
 extern char strg[80]; // global - it has to be init in main.c
 extern int j;              // global  - it has to be init in main.c
-
+extern char strgpassword[80];
 
 void UART_ConfigurePins()   //used to configure UART4 TX and RX
 {
@@ -88,13 +88,59 @@ unsigned char getU4_string()
             //c = (unsigned char)U4RXREG;
             c = getU4();
             strg[j++] = c;      
-            if(j>0 && c == '\r')
+            if(j>0 && c == '\n')
             {
                 strg[j-1] = 0;
+                j = 0;
+                flagRX = 1;   // flag goes to 1 when string is received completely. Remember to reset the flag in main.c 
+            }
+        }   
+        
+}
+
+char getU4Password( void)
+{
+//RTS=0; // assert Request To Send !RTS
+
+while (!U4STAbits.URXDA); // wait for a new char to arrive
+//RTS=1;
+return U4RXREG; // read char from receive buffer
+} // getU4
+
+unsigned char getU4_password()
+{
+     unsigned char c;
+     while(U4STAbits.URXDA)
+        {
+            //c = (unsigned char)U4RXREG;
+            c = getU4Password();
+            strgpassword[j++] = c;      
+            if(j>0 && c == '\r')
+            {
+                strgpassword[j-1] = 0;
                 j = 0;
                 flagRX = 1;   // flag goes to 1 when string is received completely. Remember to reset the flag in main.c 
             }       
         }   
         
 }
+
+unsigned char getU4_stringR()
+{
+     unsigned char c;
+     while(U4STAbits.URXDA)
+        {
+            //c = (unsigned char)U4RXREG;
+            c = getU4();
+            strg[j++] = c;      
+            if(j>0 && c == '\r')
+            {
+                strg[j-1] = 0;
+                j = 0;
+                flagRX = 1;   // flag goes to 1 when string is received completely. Remember to reset the flag in main.c 
+            }
+        }   
+        
+}
+
 

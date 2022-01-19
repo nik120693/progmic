@@ -49,76 +49,71 @@ void Attivato();
 void Menu();
 void MenuAttivato();
 void ChangePassword();
+void Initstrg();
 
 char pwd[5] = {"0000"};
 //int pwd = 0000;
-char flagRX; // global  - it has to be init in main.c
+char flagRX = 0; // global  - it has to be init in main.c
 char strg[80]; // global - it has to be init in main.c
+char strgpassword[80];
 int j = 0;
 unsigned int baud = 9600;
 
 volatile unsigned char fRxDone;
 
-int main(int argc, char** argv) 
-{
-TRISBbits.TRISB14 = 0; //buzzer configured as output
-ANSELBbits.ANSB14 = 0; //buzzer disabled analog
-PORTBbits.RB14 = 0;
-    //AICDemo();      
+int main(int argc, char** argv) {
+    TRISBbits.TRISB14 = 0; //buzzer configured as output
+    ANSELBbits.ANSB14 = 0; //buzzer disabled analog
+    PORTBbits.RB14 = 0;
+
     Disattivato();
-    //Attivato();
-    /*
-    while(1) {
-        
-    }
-    */
-    //se btnc premuto -> attivato
+    
     return (1);
 }
+
 /***	AICDemo
-**
-**	Parameters:
-**		
-**
-**	Return Value:
-**		
-**
-**	Description:
-**		This function initializes the Analon Input control module and uses the ADC and AIC functions to read an analog pin
-**          
-*/
-Sensor(){
+ **
+ **	Parameters:
+ **		
+ **
+ **	Return Value:
+ **		
+ **
+ **	Description:
+ **		This function initializes the Analon Input control module and uses the ADC and AIC functions to read an analog pin
+ **          
+ */
+Sensor() {
     //libraries initialization for the used IO modules
-    char strMsg[80];    
+    char strMsg[80];
     int valPot;
-    
+
     //LCD_Init();
     LCD_DisplayClear();
     AIC_Init();
     //RGBLED_Close();
     //RGBLED_Init();
-    
-    
-    
-    
-    while(1)
-    {    
+
+
+
+
+    while (1) {
         //RGBLED_SetValue(0,0,1); //led blue
         valPot = AIC_Val();
         sprintf(strMsg, "Pot:%04d", valPot);
         LCD_WriteStringAtPos(strMsg, 0, 0);
-        LCD_WriteStringAtPos("AIC Demo", 1, 0);
-        if(AIC_Val() > 512) {
+        LCD_WriteStringAtPos("AIC", 1, 0);
+        if (AIC_Val() > 512) {
             //suono
             //LATBbits.LATB14 ^= 1; 
             Audio();
         }
         /*tasto BTNU torna al menu*/
-        if(BTN_GetValue(4)) {
+        if (BTN_GetValue(4)) {
             MenuAttivato();
         }
-        
-    }    
+
+    }
 }
 
 Disattivato() {
@@ -131,37 +126,35 @@ Disattivato() {
     UART_ConfigureUart(baud);
     //Timer2_Init();
     BTN_Init();
-    
-    RGBLED_SetValue(255,0,0); 
+
+    RGBLED_SetValue(255, 0, 0);
     LCD_WriteStringAtPos("Disattivato", 0, 0);
-    
-    while(1) {
+
+    while (1) {
         /*legge da aic il valore del potenziometro*/
-        if(BTN_GetValue(2)){ //BTNC
+        if (BTN_GetValue(2)) { //BTNC
             RGBLED_Close();
             LCD_DisplayClear();
             //AICDemo();
             Attivato();
         }
-        
+
         /*tasto BTNU torna al menu*/
-        if(BTN_GetValue(4)) {
+        if (BTN_GetValue(4)) {
             Disattivato();
         }
     }
 }
 
-
-
 Attivato() {
-    
+
     //LCD_Init();
     //LCD_DisplayClear();
     LCD_WriteStringAtPos("Inserisci Password\0", 0, 0);
     LCD_WriteStringAtPos("da terminale\0", 1, 0);
-    
+
     //RGBLED_SetValue(0,0,1); //va messo nel while sennò il programma non prosegue
-    
+
     /*getU4_string();
         if(flagRX)
         {
@@ -174,14 +167,13 @@ Attivato() {
 
             flagRX = 0;
         }*/
-    
+
     putU4_string("Inserisci Password:"); //uart
     //getU4_string();
-    //flagRX = 0;
     unsigned int finished = 1;
     
     while(finished){
-        getU4_string();
+        getU4_stringR();
         if(flagRX)
         {
             if(strcmp(strg, pwd)==0)
@@ -203,126 +195,148 @@ Attivato() {
     //passare strg a pwd
     //strcpy(pwd,strg); //nel change password
     DelayAprox10Us(10000);
- 
-    
 }
 
-void Audio(){
+
+
+void Audio() {
     LATBbits.LATB14 ^= 1;
 }
 
-ChangePassword(){
-  putU4_string("\n Insert new password: \n");
-  flagRX=0;
-  unsigned char a;
-  unsigned char b;
-  unsigned char c;
-  unsigned char d;
-        a = getU4();
-        b = getU4();
-        c = getU4();
-        d = getU4();
-  unsigned char res[5] = {a, b, c, d,'\0'};      
+ChangePassword() {
+    putU4_string("\n Insert new password: ");
+    flagRX = 0;
+    getU4(); //per eliminare \n dal buffer
+    unsigned char a;
+    unsigned char b;
+    unsigned char c;
+    unsigned char d;
+    a = getU4();
+    b = getU4();
+    c = getU4();
+    d = getU4();
+    unsigned char res[5] = {a, b, c, d, '\0'};
 
-    if(strcmp(pwd, res)==0){
-        putU4_string("\n New password should be different from old password \n");
-        flagRX=0;
-        Attivato();
-    }
-    else
-    {
-        for(int i=0;i<sizeof(res)/sizeof(res[0]);i++){
-            pwd[i]=res[i];
-    }
-        putU4_string("\n Password changed successfully\n");
-        flagRX=0;
-        Attivato();
+    unsigned char invio = getU4();
+
+    if (invio == '\r') {
+
+        if (strcmp(pwd, res) == 0) {
+            putU4_string("\n New password should be different from old password ");
+            flagRX = 0;
+            Attivato();
+        } else {
+            for (int i = 0; i<sizeof (res) / sizeof (res[0]); i++) {
+                pwd[i] = res[i];
+            }
+            putU4_string("\n Password changed successfully");
+            flagRX = 0;
+            getU4();
+            Attivato();
+        }
     }
 }
 
 Menu() {
     LCD_DisplayClear();
-    putU4_string("\n 1-Attiva\n");
-    putU4_string("\n 2-Cambia Password\n");
-    putU4_string("\n 3-Vedi Log\n");
-    putU4_string("\n 4-Cancella Log\n");
-    
-    unsigned char uno = '1';
-    unsigned char due = '2';
-    unsigned char tre = '3';
-    unsigned char quattro = '4';
-    unsigned int finished = 1;
-    
-    while(finished){
-        unsigned char c = getU4();
-        c = getU4();
-        
-        if(c == uno){
-            flagRX=0;
-            Sensor();
-        }
-        else if(c == due){
-            flagRX=0;
-            ChangePassword();
-        }
-        else if(c == tre) {
-            //vedi log
-            flagRX=0;
-        }
-        else if(c == quattro) {
-            //cancella log
-            flagRX=0;
-        }
-        else{
-            putU4_string("\n comando non riconosciuto, disattivo");
-            Disattivato(); //stampa comando non riconosciuto, torna a disattivato
-            flagRX=0;
+    putU4_string("\n 1-Attiva");
+    putU4_string("\n 2-Cambia Password");
+    putU4_string("\n 3-Vedi Log");
+    putU4_string("\n 4-Cancella Log \n");
 
+    /* unsigned char uno = '1';
+     unsigned char due = '2';
+     unsigned char tre = '3';
+     unsigned char quattro = '4';
+     */
+    flagRX = 0;
+    //DelayAprox10Us(200000);
+    getU4_string();
+
+    unsigned char d = getU4();
+    unsigned int finished = 1;
+
+    while (finished) {
+        //unsigned char c;// = getU4();
+
+        unsigned char c = getU4();
+
+        if (c == '\r') {
+
+            if ('1' == d) {
+                flagRX = 0;
+                Sensor();
+            } else if ('2' == d) {
+                flagRX = 0;
+                ChangePassword();
+            } else if ('3' == d) {
+                //vedi log
+                flagRX = 0;
+            } else if ('4' == d) {
+                //cancella log
+                flagRX = 0;
+            } else {
+                putU4_string("\n comando non riconosciuto, disattivo");
+                Disattivato(); //stampa comando non riconosciuto, torna a disattivato
+                flagRX = 0;
+
+            }
+            flagRX = 0;
+            finished = 0;
         }
-        flagRX=0;
-        finished = 0;
     }
 }
 
 MenuAttivato() {
     LCD_DisplayClear();
-    putU4_string("\n 1-Disattiva\n");
-    putU4_string("\n 2-Cambia Password\n");
-    putU4_string("\n 3-Vedi Log\n");
-    putU4_string("\n 4-Cancella Log\n");
-    
+    putU4_string("\n 1-Disattiva");
+    putU4_string("\n 2-Cambia Password");
+    putU4_string("\n 3-Vedi Log");
+    putU4_string("\n 4-Cancella Log \n");
+
     unsigned char uno = '1';
     unsigned char due = '2';
     unsigned char tre = '3';
     unsigned char quattro = '4';
-    unsigned int finished = 1;
     
-    while(finished){
+    flagRX = 0;
+    getU4_string();
+
+    unsigned char d = getU4();
+    unsigned int finished = 1;
+
+    while (finished) {
         unsigned char c = getU4();
-        
-        if(c == uno){
-            flagRX=0;
+        if (c == '\r') {
+            
+        if (d == uno) {
+            putU4_string("\n Disattivato");
+            flagRX = 0;
             Disattivato();
-        }
-        else if(c == due){
-            flagRX=0;
+        } else if (d == due) {
+            flagRX = 0;
             ChangePassword();
-        }
-        else if(c == tre) {
+        } else if (d == tre) {
             //vedi log
-            flagRX=0;
-        }
-        else if(c == quattro) {
+            flagRX = 0;
+        } else if (d == quattro) {
             //cancella log
-            flagRX=0;
-        }
-        else{
-            putU4_string("comando non riconosciuto, disattivo");
+            flagRX = 0;
+        } else {
+            putU4_string("\n comando non riconosciuto, disattivo");
             Disattivato(); //stampa comando non riconosciuto, torna a disattivato
-            flagRX=0;
+            flagRX = 0;
 
         }
-        flagRX=0;
+        flagRX = 0;
         finished = 0;
+        }
+        }
+}
+
+Initstrg() {
+    for (int i = 0; i<sizeof (strg) / sizeof (strg[0]); i++) {
+        strg[i] = NULL;
     }
+    flagRX = 0;
 }
