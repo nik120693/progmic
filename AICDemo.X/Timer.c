@@ -4,8 +4,9 @@
  * Author: CTa
  * Date: 09.10.2021
 */
-
-#include <proc/p32mx370f512l.h> // or p32xxxx.h
+#include <xc.h>
+#include <p32xxxx.h>
+#include "multivectormode_interrupt.h"
 
 
 
@@ -17,6 +18,15 @@ void Timer2_init(void)
     T2CONbits.TCS = 0;  //select internal peripheral clock
     TMR2 = 0;           //Clear TMR2 register
     PR2 = 39063;        // Set PR2 register - Calculated to have 0.5s - Change it for new delays (See also PBCLK due to #pragma)
+    
+    IPC2bits.T2IP = 1;
+    IPC2bits.T2IS = 0;
+    IFS0bits.T2IF = 0;
+    
+    
+    macro_enable_interrupts();
+    
+    IEC0bits.T2IE = 1;
     T2CONbits.ON = 1;   // Enable Timer2
 }
 

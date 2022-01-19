@@ -13,6 +13,7 @@
       <itemPath>btn.h</itemPath>
       <itemPath>rgbled.h</itemPath>
       <itemPath>Timer.h</itemPath>
+      <itemPath>multivectormode_interrupt.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"

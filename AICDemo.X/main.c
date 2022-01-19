@@ -17,6 +17,9 @@
 #include "rgbled.h"
 #include "uart.h"
 #include "utils.h"
+//#include "multivectormode_interrupt.h"
+//#include "Timer.h"
+//#include <plib.h>
 
 
 #pragma config JTAGEN = OFF     
@@ -107,7 +110,8 @@ Sensor(){
         LCD_WriteStringAtPos("AIC Demo", 1, 0);
         if(AIC_Val() > 512) {
             //suono
-            LATBbits.LATB14 ^= 1; 
+            //LATBbits.LATB14 ^= 1; 
+            Audio();
         }
         /*tasto BTNU torna al menu*/
         if(BTN_GetValue(4)) {
@@ -125,10 +129,10 @@ Disattivato() {
     //UART_InitPoll(baud);
     UART_ConfigurePins();
     UART_ConfigureUart(baud);
-    
+    //Timer2_Init();
     BTN_Init();
     
-    RGBLED_SetValue(1,0,0); 
+    RGBLED_SetValue(255,0,0); 
     LCD_WriteStringAtPos("Disattivato", 0, 0);
     
     while(1) {
