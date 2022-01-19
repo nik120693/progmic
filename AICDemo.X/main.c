@@ -44,6 +44,7 @@ void Sensor();
 void Disattivato();
 void Attivato();
 void Menu();
+void MenuAttivato();
 void ChangePassword();
 
 char pwd[5] = {"0000"};
@@ -91,7 +92,10 @@ Sensor(){
     //LCD_Init();
     LCD_DisplayClear();
     AIC_Init();
-    RGBLED_Init();
+    //RGBLED_Close();
+    //RGBLED_Init();
+    
+    
     
     
     while(1)
@@ -104,6 +108,10 @@ Sensor(){
         if(AIC_Val() > 512) {
             //suono
             LATBbits.LATB14 ^= 1; 
+        }
+        /*tasto BTNU torna al menu*/
+        if(BTN_GetValue(4)) {
+            MenuAttivato();
         }
         
     }    
@@ -148,7 +156,7 @@ Attivato() {
     LCD_WriteStringAtPos("Inserisci Password\0", 0, 0);
     LCD_WriteStringAtPos("da terminale\0", 1, 0);
     
-    //RGBLED_SetValue(1,0,0); //va messo nel while sennò il programma non prosegue
+    //RGBLED_SetValue(0,0,1); //va messo nel while sennò il programma non prosegue
     
     /*getU4_string();
         if(flagRX)
@@ -181,6 +189,7 @@ Attivato() {
             else {
                 putU4_string("Password errata\n"); 
                 flagRX=0;
+                Disattivato();
             }
             finished = 0;
         }
@@ -228,11 +237,11 @@ ChangePassword(){
 }
 
 Menu() {
-    //da implementare
-    putU4_string("1-Attiva\n");
-    putU4_string("2-Cambia Password\n");
-    putU4_string("3-Vedi Log\n");
-    putU4_string("4-Cancella Log\n");
+    LCD_DisplayClear();
+    putU4_string("\n 1-Attiva\n");
+    putU4_string("\n 2-Cambia Password\n");
+    putU4_string("\n 3-Vedi Log\n");
+    putU4_string("\n 4-Cancella Log\n");
     
     unsigned char uno = '1';
     unsigned char due = '2';
@@ -252,7 +261,50 @@ Menu() {
             flagRX=0;
             ChangePassword();
         }
-        else if(c == 3) {
+        else if(c == tre) {
+            //vedi log
+            flagRX=0;
+        }
+        else if(c == quattro) {
+            //cancella log
+            flagRX=0;
+        }
+        else{
+            putU4_string("\n comando non riconosciuto, disattivo");
+            Disattivato(); //stampa comando non riconosciuto, torna a disattivato
+            flagRX=0;
+
+        }
+        flagRX=0;
+        finished = 0;
+    }
+}
+
+MenuAttivato() {
+    LCD_DisplayClear();
+    putU4_string("\n 1-Disattiva\n");
+    putU4_string("\n 2-Cambia Password\n");
+    putU4_string("\n 3-Vedi Log\n");
+    putU4_string("\n 4-Cancella Log\n");
+    
+    unsigned char uno = '1';
+    unsigned char due = '2';
+    unsigned char tre = '3';
+    unsigned char quattro = '4';
+    unsigned int finished = 1;
+    
+    while(finished){
+        unsigned char c = getU4();
+        
+        if(c == uno){
+            flagRX=0;
+            Disattivato();
+        }
+        else if(c == due){
+            flagRX=0;
+            ChangePassword();
+        }
+        else if(c == tre) {
             //vedi log
             flagRX=0;
         }
