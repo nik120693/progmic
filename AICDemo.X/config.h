@@ -1,7 +1,7 @@
 /* 
  * File:   config.h
  * Author: ROFatuC
- *
+ * preso sempre dalla lib ufficiale della digilent
  * Created on December 15, 2015, 11:09 AM
  */
 

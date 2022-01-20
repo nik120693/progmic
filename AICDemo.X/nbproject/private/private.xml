@@ -5,11 +5,15 @@
         <group>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/uart.c</file>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/btn.c</file>
+            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/aic.c</file>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/Timer.c</file>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/Timer.h</file>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/main.c</file>
-            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/multivectormode_interrupt.h</file>
+            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/List.c</file>
             <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/utils.c</file>
+            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/uart.h</file>
+            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/config.h</file>
+            <file>file:/C:/Users/frani/MPLABXProjects/progettofinale/AICDemo.X/rgbled.c</file>
         </group>
     </open-files>
 </project-private>

@@ -1,3 +1,3 @@
-build/default/production/Timer.o: Timer.c multivectormode_interrupt.h
+build/default/production/Timer.o: Timer.c config.h
 
-multivectormode_interrupt.h:
+config.h:

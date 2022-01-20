@@ -1,3 +1,5 @@
-build/default/production/uart.o: uart.c Uart.h
+build/default/production/uart.o: uart.c uart.h config.h
 
-Uart.h:
+uart.h:
+
+config.h:

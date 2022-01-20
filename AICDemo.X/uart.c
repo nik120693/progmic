@@ -6,8 +6,8 @@
 */
 
 #include <p32xxxx.h>
-#include "Uart.h"
-//#include <plib.h>
+#include "uart.h"
+#include "config.h"
 
 extern char flagRX; // global  - it has to be init in main.c
 extern char strg[80]; // global - it has to be init in main.c
